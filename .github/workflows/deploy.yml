@@ -1,0 +1,102 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  test:
+    name: Run Tests and Linter
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: landing_db
+          MYSQL_USER: landing_user
+          MYSQL_PASSWORD: landing_pass
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_mysql, pdo_pgsql, gd, opcache
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHP CS Fixer
+        run: |
+          if ! composer run cs-check; then
+            echo "PHP CS Fixer found issues"
+            exit 1
+          fi
+
+      - name: Run PHPStan
+        run: |
+          if ! composer run phpstan; then
+            echo "PHPStan found issues"
+            exit 1
+          fi
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Check Symfony requirements
+        run: php bin/console about || true
+
+  deploy:
+    name: Deploy to Server
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/prod'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
+            set -e
+            cd ${{ secrets.SSH_DEPLOY_PATH }}
+            echo "Fetching latest changes..."
+            git fetch origin
+            echo "Resetting to prod branch..."
+            git reset --hard origin/prod
+            echo "Installing dependencies..."
+            composer install --no-dev --optimize-autoloader --no-interaction
+            echo "Clearing cache..."
+            php bin/console cache:clear --env=prod --no-debug
+            echo "Warming up cache..."
+            php bin/console cache:warmup --env=prod --no-debug
+            echo "Deployment completed successfully!"
+          ENDSSH
+
+      - name: Restart services
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
+            sudo systemctl restart php8.4-fpm || sudo systemctl restart php-fpm || true
+            sudo systemctl restart nginx || true
+            echo "Services restarted"
+          ENDSSH

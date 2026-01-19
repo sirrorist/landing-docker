@@ -1,0 +1,171 @@
+{% extends 'layouts/base.html.twig' %}
+
+{% block body %}
+    {# Hero Section #}
+    <section class="hero" id="home">
+        <div class="hero-background">
+            <div class="hero-gradient"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Умные <span class="gradient-text">Telegram Боты</span><br>
+                    для Автоматизации Задач
+                </h1>
+                <p class="hero-description">
+                    Создаем профессиональные боты, которые экономят ваше время и автоматизируют рутинные задачи.
+                    От скачивания видео до мониторинга криптовалют — все в одном месте.
+                </p>
+                <div class="hero-actions">
+                    <a href="#bots" class="btn btn-primary">Посмотреть боты</a>
+                    <a href="#contact" class="btn btn-secondary">Связаться с нами</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number">50+</div>
+                        <div class="stat-label">Созданных ботов</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">1000+</div>
+                        <div class="stat-label">Довольных клиентов</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Поддержка</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Bots Section #}
+    <section class="bots-section" id="bots">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Наши <span class="gradient-text">Боты</span></h2>
+                <p class="section-description">
+                    Выберите готовое решение или закажите кастомного бота под ваши задачи
+                </p>
+            </div>
+            <div class="bots-grid">
+                {% for bot in bots %}
+                    <div class="bot-card">
+                        <div class="bot-icon">{{ bot.icon }}</div>
+                        <h3 class="bot-title">{{ bot.title }}</h3>
+                        <p class="bot-description">{{ bot.description }}</p>
+                        <ul class="bot-features">
+                            {% for feature in bot.features %}
+                                <li>
+                                    <span class="feature-icon">✓</span>
+                                    {{ feature }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        <button class="btn btn-outline bot-btn">Узнать больше</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    {# Demo Section #}
+    <section class="demo-section" id="demo">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Демонстрация <span class="gradient-text">Работы</span></h2>
+                <p class="section-description">
+                    Посмотрите, как наши боты решают реальные задачи
+                </p>
+            </div>
+            <div class="demo-content">
+                <div class="demo-video">
+                    <div class="video-placeholder">
+                        <div class="play-button">
+                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                                <circle cx="30" cy="30" r="30" fill="currentColor" opacity="0.2"/>
+                                <path d="M25 20L25 40L40 30L25 20Z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <p>Видео демонстрация</p>
+                    </div>
+                </div>
+                <div class="demo-features">
+                    <div class="demo-feature">
+                        <div class="demo-feature-icon">⚡</div>
+                        <h3>Быстрая работа</h3>
+                        <p>Боты обрабатывают запросы за секунды благодаря оптимизированному коду</p>
+                    </div>
+                    <div class="demo-feature">
+                        <div class="demo-feature-icon">🔒</div>
+                        <h3>Безопасность</h3>
+                        <p>Все данные защищены, используется шифрование и безопасные протоколы</p>
+                    </div>
+                    <div class="demo-feature">
+                        <div class="demo-feature-icon">📱</div>
+                        <h3>Удобный интерфейс</h3>
+                        <p>Интуитивно понятное управление через Telegram без сложных настроек</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# FAQ Section #}
+    <section class="faq-section" id="faq">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Часто задаваемые <span class="gradient-text">Вопросы</span></h2>
+                <p class="section-description">
+                    Все, что вам нужно знать о наших ботах
+                </p>
+            </div>
+            <div class="faq-list">
+                {% for faq in faqs %}
+                    <div class="faq-item">
+                        <button class="faq-question" aria-expanded="false">
+                            <span>{{ faq.question }}</span>
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer">
+                            <p>{{ faq.answer }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    {# Contact Section #}
+    <section class="contact-section" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Свяжитесь с <span class="gradient-text">Нами</span></h2>
+                <p class="section-description">
+                    Расскажите о вашем проекте, и мы предложим лучшее решение
+                </p>
+            </div>
+            <div class="contact-content">
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Ваше имя</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telegram">Telegram (опционально)</label>
+                        <input type="text" id="telegram" name="telegram" placeholder="@username">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Сообщение</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large">Отправить сообщение</button>
+                    <div class="form-message" id="formMessage"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+{% endblock %}

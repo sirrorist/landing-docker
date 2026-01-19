@@ -1,0 +1,59 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: landing_php
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/php.ini:/usr/local/etc/php/php.ini
+    networks:
+      - landing_network
+    depends_on:
+      - mysql
+    environment:
+      - APP_ENV=dev
+
+  nginx:
+    image: nginx:alpine
+    container_name: landing_nginx
+    ports:
+      - "8083:80"
+    volumes:
+      - ./:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - landing_network
+    depends_on:
+      - php
+
+  mysql:
+    image: mysql:8.0
+    container_name: landing_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: landing_db
+      MYSQL_USER: landing_user
+      MYSQL_PASSWORD: landing_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - landing_network
+
+  composer:
+    image: composer:latest
+    container_name: landing_composer
+    volumes:
+      - ./:/app
+    working_dir: /app
+    networks:
+      - landing_network
+
+volumes:
+  mysql_data:
+
+networks:
+  landing_network:
+    driver: bridge
