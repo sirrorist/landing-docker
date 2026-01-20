@@ -4,4 +4,3 @@ parameters:
         - src
     excludePaths:
         - src/Kernel.php
-    checkMissingIterableValueType: false

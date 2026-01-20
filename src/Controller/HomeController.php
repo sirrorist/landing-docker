@@ -83,10 +83,8 @@ class HomeController extends AbstractController
     #[Route('/contact', name: 'contact', methods: ['POST'])]
     public function contact(Request $request): Response
     {
-        // Здесь будет обработка формы
-        // Пока просто возвращаем JSON ответ
         $data = json_decode($request->getContent(), true);
-        
+
         // TODO: отправка email или сохранение в БД
         return $this->json([
             'success' => true,
